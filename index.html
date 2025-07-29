@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -132,25 +130,117 @@
       color: #fff;
       z-index: 1000;
     }
-    footer {
-      text-align: center;
+    .user-box {
+      position: fixed;
+      top: 20px;
+      right: 20px;
       background: #111;
-      padding: 20px;
-      margin-top: 60px;
-      font-size: 0.9em;
+      padding: 18px 24px 14px 24px;
+      border-radius: 12px;
+      z-index: 1001;
+      box-shadow: 0 2px 8px #0008;
+      min-width: 240px;
+    }
+    .user-box h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.1em;
+      letter-spacing: 1px;
+    }
+    .user-box input {
+      width: 100%;
+      margin: 4px 0 10px 0;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      font-size: 1em;
+    }
+    .user-box button {
+      width: 100%;
+      margin-top: 2px;
+      background: #171717;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      padding: 9px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    .user-box .cerrar {
+      background: #2c2c2c;
+      margin-top: 6px;
+      font-size: 0.95em;
+      color: #aaa;
+    }
+    .user-drop {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #181818;
+      padding: 10px 18px;
+      border-radius: 8px;
+      z-index: 1002;
+      font-size: 1.06em;
+      color: #fff;
+      min-width: 210px;
+      box-shadow: 0 2px 8px #0007;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .user-drop button {
+      padding: 5px 12px;
+      background: #242424;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.98em;
+    }
+    .user-drop button:hover {
+      background: #101010;
+    }
+    .historial-box {
+      position: fixed;
+      top: 90px;
+      right: 20px;
+      background: #111;
+      padding: 18px 24px 14px 24px;
+      border-radius: 12px;
+      z-index: 1001;
+      min-width: 260px;
+      max-width: 95vw;
+      max-height: 60vh;
+      overflow-y: auto;
+      box-shadow: 0 2px 8px #0008;
+      display: none;
+      color: #fff;
+    }
+    .historial-box h3 {
+      margin-top: 0;
+    }
+    .historial-box ul {
+      padding-left: 18px;
+    }
+    .historial-box ul li {
+      margin-bottom: 7px;
+      font-size: 1em;
+      line-height: 1.4;
     }
     @media (max-width: 600px) {
       .logo { font-size: 2em; }
       .bienvenida { font-size: 1em; }
       .menu { flex-direction: column; }
       .menu button { width: 100%; }
+      .user-box, .user-drop, .historial-box { min-width: 94vw; top: 3vw; right: 1vw;}
     }
   </style>
 </head>
 <body>
   <header>
     <video autoplay muted loop playsinline>
-      <source src="https://www.w3schools.com/howto/rain.mp4" type="video/mp4" />
+      <source src="https://videos.pexels.com/video-files/854186/854186-hd_1920_1080_25fps.mp4" type="video/mp4" />
     </video>
     <div class="logo">RAN EXCLUSIVE</div>
     <div class="bienvenida">¡Bienvenidos a la tienda oficial!</div>
@@ -172,6 +262,36 @@
     <button class="add-btn" onclick="finalizarCompra()">Enviar por WhatsApp</button>
   </div>
 
+  <button id="userLoginBtn" style="position:fixed;top:20px;left:20px;z-index:1001;background:#101010;color:#fff;border:none;padding:12px 22px;border-radius:8px;font-size:1.1em;cursor:pointer;">Acceder</button>
+
+  <div id="userBox" class="user-box" style="display:none;">
+    <h3 id="loginTitle">Iniciar Sesión</h3>
+    <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="username" />
+    <input type="password" id="loginPass" placeholder="Contraseña" autocomplete="current-password" />
+    <div id="loginBtns">
+      <button onclick="loginUsuario()">Ingresar</button>
+      <button onclick="mostrarRegistro()">Registrarse</button>
+    </div>
+    <div id="registroBtns" style="display:none;">
+      <button onclick="registrarUsuario()">Crear Cuenta</button>
+      <button class="cerrar" onclick="cancelarRegistro()">Cancelar</button>
+    </div>
+    <button class="cerrar" onclick="toggleUserBox(false)">Cerrar</button>
+    <div id="userMsg" style="color:#ffbaba;margin-top:7px;min-height:24px"></div>
+  </div>
+
+  <div id="userDrop" class="user-drop" style="display:none;">
+    <span id="userCorreo"></span>
+    <button onclick="mostrarHistorial()">Historial de compras</button>
+    <button onclick="logoutUsuario()">Cerrar sesión</button>
+  </div>
+
+  <div id="historialBox" class="historial-box">
+    <h3>Historial de compras</h3>
+    <ul id="historialList"></ul>
+    <button class="cerrar" onclick="toggleHistorial(false)">Cerrar</button>
+  </div>
+
   <footer>
     Instagram: @ran_exclusive <br>
     Email: contacto@ranexclusive.com <br>
@@ -179,6 +299,7 @@
   </footer>
 
   <script>
+    // --- PRODUCTOS Y SECCIONES ---
     const productos = {
       novedades: [
         { nombre: "Remera Fresh", precio: 1000, img: "https://via.placeholder.com/250", color: ["Negro","Blanco","Azul"], talle: ["S","M","L","XL"] },
@@ -225,6 +346,7 @@
       }
     }
 
+    // --- CARRITO ---
     let carrito = [];
     function agregarAlCarrito(tipo, index) {
       const prod = productos[tipo][index];
@@ -245,10 +367,157 @@
 
     function finalizarCompra() {
       if (carrito.length === 0) return alert("Tu carrito está vacío.");
+      if (!usuarioLogueado()) {
+        alert("Debes iniciar sesión para finalizar tu compra.");
+        toggleUserBox(true);
+        return;
+      }
       const msg = encodeURIComponent("Hola, quiero comprar:\n" + carrito.map(c =>
         `${c.cant}x ${c.nombre} - ${c.color} - ${c.talle} - ${c.pago}`).join('\n'));
+      guardarCompraHistorial(carrito);
       window.open("https://wa.me/598091290479?text=" + msg, "_blank");
+      carrito = [];
+      mostrarCarrito();
     }
+
+    // --- USUARIO Y AUTENTICACIÓN LOCAL ---
+    function getUsuariosDB() {
+      return JSON.parse(localStorage.getItem('usuariosRanEx') || '{}');
+    }
+    function setUsuariosDB(db) {
+      localStorage.setItem('usuariosRanEx', JSON.stringify(db));
+    }
+    function setUsuarioActual(email) {
+      localStorage.setItem('usuarioRanActual', email);
+    }
+    function getUsuarioActual() {
+      return localStorage.getItem('usuarioRanActual');
+    }
+    function usuarioLogueado() {
+      return !!getUsuarioActual();
+    }
+    function limpiarCamposAuth() {
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPass').value = '';
+      document.getElementById('userMsg').textContent = '';
+    }
+    function toggleUserBox(show) {
+      document.getElementById('userBox').style.display = show ? 'block' : 'none';
+      if (show) limpiarCamposAuth();
+    }
+    function mostrarRegistro() {
+      document.getElementById('loginTitle').textContent = "Registro";
+      document.getElementById('loginBtns').style.display = "none";
+      document.getElementById('registroBtns').style.display = "block";
+      limpiarCamposAuth();
+    }
+    function cancelarRegistro() {
+      document.getElementById('loginTitle').textContent = "Iniciar Sesión";
+      document.getElementById('loginBtns').style.display = "";
+      document.getElementById('registroBtns').style.display = "none";
+      limpiarCamposAuth();
+    }
+    function registrarUsuario() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPass').value.trim();
+      if (email.length < 5 || !email.includes('@') || pass.length < 4) {
+        document.getElementById('userMsg').textContent = "Correo o contraseña inválidos.";
+        return;
+      }
+      let db = getUsuariosDB();
+      if (email in db) {
+        document.getElementById('userMsg').textContent = "Ya existe un usuario con ese correo.";
+        return;
+      }
+      db[email] = { password: pass, historial: [] };
+      setUsuariosDB(db);
+      setUsuarioActual(email);
+      document.getElementById('userMsg').textContent = "Registro exitoso. ¡Bienvenido!";
+      setTimeout(() => {
+        toggleUserBox(false);
+        mostrarUserDrop();
+      }, 1400);
+    }
+    function loginUsuario() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPass').value.trim();
+      let db = getUsuariosDB();
+      if (!(email in db) || db[email].password !== pass) {
+        document.getElementById('userMsg').textContent = "Correo o contraseña incorrectos.";
+        return;
+      }
+      setUsuarioActual(email);
+      document.getElementById('userMsg').textContent = "¡Bienvenido!";
+      setTimeout(() => {
+        toggleUserBox(false);
+        mostrarUserDrop();
+      }, 900);
+    }
+    function logoutUsuario() {
+      setUsuarioActual('');
+      ocultarUserDrop();
+      alert("Sesión cerrada.");
+    }
+    function mostrarUserDrop() {
+      if (!usuarioLogueado()) return;
+      document.getElementById('userCorreo').textContent = getUsuarioActual();
+      document.getElementById('userDrop').style.display = "flex";
+    }
+    function ocultarUserDrop() {
+      document.getElementById('userDrop').style.display = "none";
+    }
+    document.getElementById('userLoginBtn').onclick = function() {
+      toggleUserBox(true);
+    };
+    document.addEventListener("DOMContentLoaded", () => {
+      if (usuarioLogueado()) mostrarUserDrop();
+    });
+
+    // Cerrar userDrop si clic fuera
+    document.addEventListener("click", (e) => {
+      const drop = document.getElementById('userDrop');
+      if (drop.style.display === "flex" && !drop.contains(e.target) && e.target.id !== 'userLoginBtn') {
+        drop.style.display = "none";
+      }
+    });
+
+    // --- HISTORIAL DE COMPRA LIGADO AL USUARIO ---
+    function guardarCompraHistorial(compraArr) {
+      if (!usuarioLogueado()) return;
+      let db = getUsuariosDB();
+      let email = getUsuarioActual();
+      if (!(email in db)) return;
+      let hoy = new Date();
+      let fecha = hoy.toLocaleDateString() + " " + hoy.toLocaleTimeString().slice(0, 5);
+      let resumen = compraArr.map(c => `${c.cant}x ${c.nombre} (${c.color} - ${c.talle} - ${c.pago})`).join(' | ');
+      db[email].historial = db[email].historial || [];
+      db[email].historial.unshift({ fecha, resumen });
+      if (db[email].historial.length > 20) db[email].historial = db[email].historial.slice(0, 20);
+      setUsuariosDB(db);
+    }
+    function mostrarHistorial() {
+      if (!usuarioLogueado()) {
+        alert("Debes iniciar sesión para ver tu historial.");
+        toggleHistorial(false);
+        toggleUserBox(true);
+        return;
+      }
+      let db = getUsuariosDB();
+      let email = getUsuarioActual();
+      let hist = (db[email] && db[email].historial) || [];
+      let ul = document.getElementById('historialList');
+      if (!hist.length) {
+        ul.innerHTML = "<li>No hay compras registradas.</li>";
+      } else {
+        ul.innerHTML = hist.map(item => `<li><b>${item.fecha}:</b> ${item.resumen}</li>`).join('');
+      }
+      toggleHistorial(true);
+    }
+    function toggleHistorial(show) {
+      document.getElementById('historialBox').style.display = show ? "block" : "none";
+    }
+    // Mostrar menú usuario si ya logueado
+    if (usuarioLogueado()) mostrarUserDrop();
   </script>
 </body>
 </html>
